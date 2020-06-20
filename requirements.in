@@ -1,0 +1,4 @@
+scripthelper
+pip-tools
+pylint
+black
