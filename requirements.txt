@@ -6,27 +6,76 @@
 #
 appdirs==1.4.4            # via black
 astroid==2.4.2            # via pylint
-attrs==19.3.0             # via black
+atomicwrites==1.4.0       # via pytest
+attrs==19.3.0             # via black, pytest
+babel==2.8.0              # via fava, flask-babel
+beancount==2.3.0          # via -r requirements.in, fava
+beautifulsoup4==4.9.1     # via beancount
 black==19.10b0            # via -r requirements.in
-click==7.1.2              # via black, pip-tools
-colorama==0.4.3           # via pylint
+bottle==0.12.18           # via beancount
+cachetools==4.1.0         # via google-auth
+certifi==2020.4.5.2       # via requests
+chardet==3.0.4            # via beancount, requests
+cheroot==8.3.0            # via fava
+click==7.1.2              # via black, fava, flask, pip-tools
+colorama==0.4.3           # via pylint, pytest
 coloredlogs==14.0         # via scripthelper
+fava==1.15                # via -r requirements.in
+flask-babel==1.0.0        # via fava
+flask==1.1.2              # via fava, flask-babel
+google-api-core==1.21.0   # via google-api-python-client
+google-api-python-client==1.9.3  # via beancount
+google-auth-httplib2==0.0.3  # via google-api-python-client
+google-auth==1.18.0       # via google-api-core, google-api-python-client, google-auth-httplib2
+googleapis-common-protos==1.52.0  # via google-api-core
+httplib2==0.18.1          # via google-api-python-client, google-auth-httplib2
 humanfriendly==8.2        # via coloredlogs
+idna==2.9                 # via requests
+importlib-metadata==1.6.1  # via pluggy, pytest
 isort==4.3.21             # via pylint
+itsdangerous==1.1.0       # via flask
+jaraco.functools==3.0.1   # via cheroot
+jinja2==2.11.2            # via fava, flask, flask-babel
 lazy-object-proxy==1.4.3  # via astroid
+lxml==4.5.1               # via beancount
+markdown2==2.3.9          # via fava
+markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via pylint
+more-itertools==8.4.0     # via cheroot, jaraco.functools, pytest
+packaging==20.4           # via pytest
 pathspec==0.8.0           # via black
 pip-tools==5.2.1          # via -r requirements.in
+pluggy==0.13.1            # via pytest
+ply==3.11                 # via beancount, fava
+protobuf==3.12.2          # via google-api-core, googleapis-common-protos
+py==1.8.2                 # via pytest
+pyasn1-modules==0.2.8     # via google-auth
+pyasn1==0.4.8             # via pyasn1-modules, rsa
 pylint==2.5.3             # via -r requirements.in
-pyreadline==2.1           # via humanfriendly
+pyparsing==2.4.7          # via packaging
+pyreadline==2.1           # via fava, humanfriendly
+pytest==5.4.3             # via beancount
+python-dateutil==2.8.1    # via beancount
+python-magic==0.4.18      # via beancount
+pytz==2020.1              # via babel, flask-babel, google-api-core
 regex==2020.6.8           # via black
+requests==2.24.0          # via beancount, google-api-core
+rsa==4.6                  # via google-auth
 scripthelper==1.4         # via -r requirements.in
-six==1.15.0               # via astroid, pip-tools
+simplejson==3.17.0        # via fava
+six==1.15.0               # via astroid, cheroot, google-api-core, google-api-python-client, google-auth, packaging, pip-tools, protobuf, python-dateutil
+soupsieve==2.0.1          # via beautifulsoup4
 toml==0.10.1              # via black, pylint
 tqdm==4.46.1              # via scripthelper
 typed-ast==1.4.1          # via astroid, black
+uritemplate==3.0.1        # via google-api-python-client
+urllib3==1.25.9           # via requests
 verboselogs==1.7          # via scripthelper
+wcwidth==0.2.4            # via pytest
+werkzeug==1.0.1           # via fava, flask
 wrapt==1.12.1             # via astroid
+zipp==3.1.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 pip==20.1.1               # via pip-tools
+setuptools==47.3.1        # via google-api-core, google-auth, protobuf

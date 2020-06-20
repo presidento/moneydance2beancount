@@ -2,3 +2,5 @@ scripthelper
 pip-tools
 pylint
 black
+beancount
+fava
