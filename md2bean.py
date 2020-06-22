@@ -47,6 +47,8 @@ with open("common.bean", "w", encoding="utf-8") as common_bean:
 
 main_bean.write('include "common.bean"\n')
 
+main_bean.write('include "fixup.bean"\n')
+
 current_year = 0
 current_out_file = None
 for transaction in sorted(bean_converter.transactions, key=lambda p: p.date):
