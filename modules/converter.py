@@ -141,9 +141,13 @@ class Md2BeanConverter:
         self.accounts = {}
         self.transactions = []
 
-    def bean_account(self, md_account):
+    def bean_account(self, md_transaction):
+        md_account = md_transaction.account
+
         if md_account.name not in self.accounts:
-            self.accounts[md_account.name] = Account(md_account)
+            self.accounts[md_account.name] = Account(
+                md_account, md_account.name
+            )
         return self.accounts[md_account.name]
 
     def convert(self, moneydance_transactions):
@@ -188,7 +192,7 @@ class Md2BeanConverter:
         return bean_transactions
 
     def create_split(self, md_transaction):
-        account = self.bean_account(md_transaction.account)
+        account = self.bean_account(md_transaction)
         split = Split(account=account, md_transaction=md_transaction)
         return split
 
