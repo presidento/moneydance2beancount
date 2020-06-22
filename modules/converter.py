@@ -16,12 +16,7 @@ class Account:
             prefix = "Liabilities"
         else:
             raise NotImplementedError(f"Moneydance account type {md_account.account_type}")
-        name = md_account.name
-        name = name.replace(' ', '')
-        name = name.replace('&', '-')
-        name = ':'.join(part.capitalize() for part in name.split(":"))
-
-        self.name = f"{prefix}:{name}"
+        self.name = prefix  + ":" + self.fix_name(md_account.name)
         self.start_date = None
         self.end_date = None
         self.start_balance = md_account.start_balance
@@ -33,6 +28,14 @@ class Account:
             self.start_date = date
         if not self.end_date or self.end_date < date:
             self.end_date = date
+    
+    @staticmethod
+    def fix_name(name):
+        name = name.replace("&", "")
+        name = name.replace(" ", "-")
+        name = name.replace("--", "-")
+        name = ':'.join(part[0].upper() + part[1:] for part in name.split(":"))
+        return name
 
 
 @dataclass
