@@ -5,6 +5,7 @@ import scripthelper
 from dataclasses import dataclass
 import datetime
 import collections
+import textwrap
 
 DEFAULT_CURRENCY = "HUF"
 
@@ -21,8 +22,18 @@ logger.info("Writing Beancount file")
 
 main_bean = open("main.bean", "w", encoding="utf-8")
 
-main_bean.write('option "title" "Moneydance export"\n')
-main_bean.write(f'option "operating_currency" "{DEFAULT_CURRENCY}"\n')
+main_bean.write(textwrap.dedent(f"""
+    option "title" "Moneydance export"
+    option "operating_currency" "{DEFAULT_CURRENCY}"
+    option "render_commas" "TRUE"
+
+    plugin "beancount.plugins.implicit_prices"
+    ;plugin "beancount.plugins.leafonly"
+    ;plugin "beancount.plugins.mark_unverified"
+
+    2005-01-01 custom "fava-option" "locale" "hu_HU"
+    2005-01-01 custom "fava-option" "show-accounts-with-zero-balance" "false"
+""").strip() + "\n\n")
 
 for account in sorted(bean_converter.accounts.values(), key=lambda a: a.name):
     txt = f"{account.start_date} open {account.name}"
