@@ -35,15 +35,17 @@ main_bean.write(textwrap.dedent(f"""
     2005-01-01 custom "fava-option" "show-accounts-with-zero-balance" "false"
 """).strip() + "\n\n")
 
-for account in sorted(bean_converter.accounts.values(), key=lambda a: a.name):
-    txt = f"{account.start_date} open {account.name}"
-    if account.type == "Assets":
-        txt += f"     {account.currency}"
-        if account.currency != DEFAULT_CURRENCY:
-            txt += ' "NONE"'
-    main_bean.write(txt + "\n")
+with open("common.bean", "w", encoding="utf-8") as common_bean:
+    for account in sorted(bean_converter.accounts.values(), key=lambda a: a.name):
+        txt = f"{account.start_date} open {account.name}"
+        if account.type == "Assets":
+            txt += f"     {account.currency}"
+            if account.currency != DEFAULT_CURRENCY:
+                txt += ' "NONE"'
+        common_bean.write(txt + "\n")
 
-main_bean.write("\n\n")
+
+main_bean.write('include "common.bean"\n')
 
 current_year = 0
 current_out_file = None
