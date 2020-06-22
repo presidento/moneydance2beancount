@@ -44,6 +44,9 @@ with open("common.bean", "w", encoding="utf-8") as common_bean:
                 txt += ' "NONE"'
         common_bean.write(txt + "\n")
 
+        if account.type == 'Assets' or account.type == 'Liabilities':
+            if account.end_date < datetime.date.today() - datetime.timedelta(days=365):
+                common_bean.write(f"{account.end_date} close {account.name}\n")
 
 main_bean.write('include "common.bean"\n')
 
