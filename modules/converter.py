@@ -2,39 +2,42 @@ from dataclasses import dataclass
 import datetime
 import collections
 
-DEFAULT_CURRENCY = 'HUF'
+DEFAULT_CURRENCY = "HUF"
+
 
 class Account:
-    def __init__(self, md_account):
-        if md_account.account_type == 'EXPENSE':
+    def __init__(self, md_account, name):
+        if md_account.account_type == "EXPENSE":
             prefix = "Expenses"
-        elif md_account.account_type == 'INCOME':
+        elif md_account.account_type == "INCOME":
             prefix = "Income"
-        elif md_account.account_type == 'BANK' or md_account.account_type == 'ASSET':
+        elif md_account.account_type == "BANK" or md_account.account_type == "ASSET":
             prefix = "Assets"
-        elif md_account.account_type == 'LIABILITY':
+        elif md_account.account_type == "LIABILITY":
             prefix = "Liabilities"
         else:
-            raise NotImplementedError(f"Moneydance account type {md_account.account_type}")
-        self.name = prefix  + ":" + self.fix_name(md_account.name)
+            raise NotImplementedError(
+                f"Moneydance account type {md_account.account_type}"
+            )
+        self.name = prefix + ":" + self.fix_name(name)
         self.start_date = None
         self.end_date = None
         self.start_balance = md_account.start_balance
         self.currency = md_account.currency
         self.type = prefix
-    
+
     def register_date(self, date):
         if not self.start_date or self.start_date > date:
             self.start_date = date
         if not self.end_date or self.end_date < date:
             self.end_date = date
-    
+
     @staticmethod
     def fix_name(name):
         name = name.replace("&", "")
         name = name.replace(" ", "-")
         name = name.replace("--", "-")
-        name = ':'.join(part[0].upper() + part[1:] for part in name.split(":"))
+        name = ":".join(part[0].upper() + part[1:] for part in name.split(":"))
         return name
 
 
@@ -47,13 +50,13 @@ class Transaction:
     comment: str
 
     def __init__(self, md_transaction):
-        self.date=md_transaction.date
-        self.status=self.convert_status(md_transaction.status)
-        self.payee=""
-        self.narration=md_transaction.description.replace("\"", "'")
-        self.comment=md_transaction.memo
+        self.date = md_transaction.date
+        self.status = self.convert_status(md_transaction.status)
+        self.payee = ""
+        self.narration = md_transaction.description.replace('"', "'")
+        self.comment = md_transaction.memo
         self.splits = []
-    
+
     def bean_str(self):
         lines = []
         lines.append(self._bean_str_transaction_header())
@@ -63,11 +66,15 @@ class Transaction:
     def _bean_str_split_lines(self):
         lines = []
         splits = sorted(self.splits, key=lambda s: -s.amount)
-        is_simple_transaction = len(splits) == 2 and not splits[0].in_default_currency and not splits[1].in_default_currency
+        is_simple_transaction = (
+            len(splits) == 2
+            and not splits[0].in_default_currency
+            and not splits[1].in_default_currency
+        )
         for split in splits:
             txt = f"  {split.account.name:40}"
             if is_simple_transaction and split.amount < 0:
-                pass # skip repeating the same amount
+                pass  # skip repeating the same amount
             else:
                 txt += f"{split.amount:10.2f}"
                 txt += f" {split.account.currency}"
@@ -77,20 +84,22 @@ class Transaction:
                 txt += f" ; " + split.comment
             lines.append(txt.rstrip())
         return lines
-    
+
     def _bean_str_transaction_header(self):
-        txt = f'{self.date} {self.status}'
+        txt = f"{self.date} {self.status}"
         if self.payee:
             txt += f' "{self.payee}"'
             if not self.narration:
                 txt += ' ""'
         if self.narration:
             txt += f' "{self.narration}"'
-        if self.comment and self.comment != self.narration and self.comment != self.payee:
+        if (
+            self.comment
+            and self.comment != self.narration
+            and self.comment != self.payee
+        ):
             txt += f" ; {self.comment}"
         return txt
-
-
 
     @staticmethod
     def convert_status(md_status):
@@ -114,7 +123,6 @@ class Split:
         else:
             self.in_default_currency = None
 
-    
     @property
     def currency(self):
         return self.account.currency
@@ -149,7 +157,7 @@ class Md2BeanConverter:
 
         for date, transaction_list in all_md_transactions.items():
             self.transactions += self.parse_transaction_list(date, transaction_list)
-        
+
         self.update_account_start_end_dates()
 
     def parse_transaction_list(self, date, transaction_list):
