@@ -53,6 +53,44 @@ class Transaction:
         self.narration=md_transaction.description.replace("\"", "'")
         self.comment=md_transaction.memo
         self.splits = []
+    
+    def bean_str(self):
+        lines = []
+        lines.append(self._bean_str_transaction_header())
+        lines += self._bean_str_split_lines()
+        return "\n".join(lines)
+
+    def _bean_str_split_lines(self):
+        lines = []
+        splits = sorted(self.splits, key=lambda s: -s.amount)
+        is_simple_transaction = len(splits) == 2 and not splits[0].in_default_currency and not splits[1].in_default_currency
+        for split in splits:
+            txt = f"  {split.account.name:40}"
+            if is_simple_transaction and split.amount < 0:
+                pass # skip repeating the same amount
+            else:
+                txt += f"{split.amount:10.2f}"
+                txt += f" {split.account.currency}"
+            if split.in_default_currency:
+                txt += f" @@ {abs(split.in_default_currency):.2f} {DEFAULT_CURRENCY}"
+            if split.comment and split.comment not in (self.narration, self.comment):
+                txt += f" ; " + split.comment
+            lines.append(txt.rstrip())
+        return lines
+    
+    def _bean_str_transaction_header(self):
+        txt = f'{self.date} {self.status}'
+        if self.payee:
+            txt += f' "{self.payee}"'
+            if not self.narration:
+                txt += ' ""'
+        if self.narration:
+            txt += f' "{self.narration}"'
+        if self.comment and self.comment != self.narration and self.comment != self.payee:
+            txt += f" ; {self.comment}"
+        return txt
+
+
 
     @staticmethod
     def convert_status(md_status):

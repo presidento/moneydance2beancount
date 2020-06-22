@@ -58,21 +58,8 @@ for transaction in sorted(bean_converter.transactions, key=lambda p: p.date):
             current_out_file.close()
         current_out_file = open(f'{current_year}.bean', 'w', encoding='utf-8')
         main_bean.write(f'include "{current_year}.bean"\n')
-    txt = f'{transaction.date} {transaction.status} "{transaction.payee}" "{transaction.narration}"'
-    if transaction.comment:
-        txt += f" ; {transaction.comment}"
-    current_out_file.write(txt + "\n")
-    for split in transaction.splits:
-        txt = f"  {split.account.name:50} {split.amount:10.2f} {split.account.currency}"
-        if split.in_default_currency:
-            txt += (
-                " {{"
-                + f"{abs(split.in_default_currency):.2f} {DEFAULT_CURRENCY}"
-                + "}}"
-            )
-        if split.comment and split.comment != transaction.comment:
-            txt += f" ; " + split.comment
-        current_out_file.write(txt + "\n")
+
+    current_out_file.write(transaction.bean_str() + "\n")
     current_out_file.write("\n")
 
 
