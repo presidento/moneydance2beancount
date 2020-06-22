@@ -59,6 +59,8 @@ for transaction in sorted(bean_converter.transactions, key=lambda p: p.date):
         current_out_file = open(f'{current_year}.bean', 'w', encoding='utf-8')
         main_bean.write(f'include "{current_year}.bean"\n')
 
+    if not any(split.amount for split in transaction.splits):
+        continue
     current_out_file.write(transaction.bean_str() + "\n")
     current_out_file.write("\n")
 
