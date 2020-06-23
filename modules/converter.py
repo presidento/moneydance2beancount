@@ -166,13 +166,27 @@ class Md2BeanConverter:
 
     def bean_account(self, md_transaction):
         md_account = md_transaction.account
-        account_id = md_account.name
+        account_id = (
+            md_account.account_type + ":" + self._altered_account_name(md_transaction)
+        )
 
         if account_id not in self.accounts:
             self.accounts[account_id] = Account(
-                md_account, md_account.name
+                md_account, self._altered_account_name(md_transaction)
             )
         return self.accounts[account_id]
+
+    def _altered_account_name(self, md_transaction):
+        if (
+            md_transaction.account.account_type == "LIABILITY"
+            and md_transaction.check_number
+        ):
+            # In Moneydance I have one liability, and
+            # use check_number to specify the other side
+            return md_transaction.check_number
+        if md_transaction.account.account_type == "INCOME":
+            return md_transaction.account.name.partition(":")[2]
+        return md_transaction.account.name
 
     def convert(self, moneydance_transactions):
         self.accounts = {}
