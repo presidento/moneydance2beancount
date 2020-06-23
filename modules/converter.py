@@ -51,11 +51,15 @@ class Transaction:
 
     def __init__(self, md_transaction):
         self.date = md_transaction.date
-        self.status = self.convert_status(md_transaction.status)
+        self.status = "!"
         self.payee = ""
         self.narration = md_transaction.description.replace('"', "'")
         self.comment = md_transaction.memo
         self.splits = []
+
+    def add_split(self, split, md_status):
+        self.splits.append(split)
+        self._update_status(md_status)
 
     def bean_str(self):
         lines = []
@@ -101,10 +105,24 @@ class Transaction:
             txt += f" ; {self.comment}"
         return txt
 
+    def _update_status(self, md_status):
+        # In Moneydance we do not have Transaction status, but
+        # status for every split (typically for every involved account)
+        # Let's calculate the "highest" / best status for the transaction
+        possible_statuses = ["!", "?", "*"]
+        current_status_index = possible_statuses.index(self.status)
+        new_status_index = possible_statuses.index(self._convert_status(md_status))
+        self.status = possible_statuses[max(current_status_index, new_status_index)]
+
     @staticmethod
-    def convert_status(md_status):
-        # FIXME: calculate status
-        return "*"
+    def _convert_status(md_status):
+        if md_status == " ":  # MD: Uncleared, default
+            return "!"
+        if md_status == "x":  # MD: Reconciling
+            return "?"
+        if md_status == "X":  # MD: Cleared
+            return "*"
+        return " "
 
 
 @dataclass
@@ -182,8 +200,10 @@ class Md2BeanConverter:
             if splits:
                 bean_transaction = Transaction(md_transaction)
                 for split in splits:
-                    bean_transaction.splits.append(self.create_split(split))
-                bean_transaction.splits.append(self.create_split(md_transaction))
+                    bean_transaction.add_split(self.create_split(split), split.status)
+                bean_transaction.add_split(
+                    self.create_split(md_transaction), md_transaction.status
+                )
                 bean_transactions.append(bean_transaction)
             else:
                 # This is one of the "other part" of the transaction
