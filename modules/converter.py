@@ -55,37 +55,37 @@ class Transaction:
         self.payee = ""
         self.narration = md_transaction.description.replace('"', "'")
         self.comment = md_transaction.memo
-        self.splits = []
+        self.postings = []
 
-    def add_split(self, split, md_status):
-        self.splits.append(split)
+    def add_posting(self, posting, md_status):
+        self.postings.append(posting)
         self._update_status(md_status)
 
     def bean_str(self):
         lines = []
         lines.append(self._bean_str_transaction_header())
-        lines += self._bean_str_split_lines()
+        lines += self._bean_str_posting_lines()
         return "\n".join(lines)
 
-    def _bean_str_split_lines(self):
+    def _bean_str_posting_lines(self):
         lines = []
-        splits = sorted(self.splits, key=lambda s: -s.amount)
+        postings = sorted(self.postings, key=lambda s: -s.amount)
         is_simple_transaction = (
-            len(splits) == 2
-            and not splits[0].in_default_currency
-            and not splits[1].in_default_currency
+            len(postings) == 2
+            and not postings[0].in_default_currency
+            and not postings[1].in_default_currency
         )
-        for split in splits:
-            txt = f"  {split.account.name:40}"
-            if is_simple_transaction and split.amount < 0:
+        for posting in postings:
+            txt = f"  {posting.account.name:40}"
+            if is_simple_transaction and posting.amount < 0:
                 pass  # skip repeating the same amount
             else:
-                txt += f"{split.amount:10,.2f}"
-                txt += f" {split.account.currency}"
-            if split.in_default_currency:
-                txt += f" @@ {abs(split.in_default_currency):,.2f} {DEFAULT_CURRENCY}"
-            if split.comment and split.comment not in (self.narration, self.comment):
-                txt += f" ; " + split.comment
+                txt += f"{posting.amount:10,.2f}"
+                txt += f" {posting.account.currency}"
+            if posting.in_default_currency:
+                txt += f" @@ {abs(posting.in_default_currency):,.2f} {DEFAULT_CURRENCY}"
+            if posting.comment and posting.comment not in (self.narration, self.comment):
+                txt += f" ; " + posting.comment
             lines.append(txt.rstrip())
         return lines
 
@@ -126,7 +126,7 @@ class Transaction:
 
 
 @dataclass
-class Split:
+class Posting:
     account: Account
     amount: float
     comment: str
@@ -186,7 +186,7 @@ class Md2BeanConverter:
         bean_transactions = []
         while transaction_list:
             md_transaction = transaction_list.popleft()
-            splits = []
+            postings = []
             for split in md_transaction.splits:
                 for candidate in transaction_list:
                     if (
@@ -195,14 +195,14 @@ class Md2BeanConverter:
                         and they_are_opposite(md_transaction, candidate.splits[0])
                     ):
                         transaction_list.remove(candidate)
-                        splits.append(candidate)
+                        postings.append(candidate)
                         break
-            if splits:
+            if postings:
                 bean_transaction = Transaction(md_transaction)
-                for split in splits:
-                    bean_transaction.add_split(self.create_split(split), split.status)
-                bean_transaction.add_split(
-                    self.create_split(md_transaction), md_transaction.status
+                for posting in postings:
+                    bean_transaction.add_posting(self.create_posting(posting), posting.status)
+                bean_transaction.add_posting(
+                    self.create_posting(md_transaction), md_transaction.status
                 )
                 bean_transactions.append(bean_transaction)
             else:
@@ -211,12 +211,12 @@ class Md2BeanConverter:
                 transaction_list.append(md_transaction)
         return bean_transactions
 
-    def create_split(self, md_transaction):
+    def create_posting(self, md_transaction):
         account = self.bean_account(md_transaction)
-        split = Split(account=account, md_transaction=md_transaction)
-        return split
+        posting = Posting(account=account, md_transaction=md_transaction)
+        return posting
 
     def update_account_start_end_dates(self):
         for transaction in self.transactions:
-            for split in transaction.splits:
-                split.account.register_date(transaction.date)
+            for posting in transaction.postings:
+                posting.account.register_date(transaction.date)
