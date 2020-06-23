@@ -87,6 +87,9 @@ class Transaction:
             if posting.comment and posting.comment not in (self.narration, self.comment):
                 txt += f" ; " + posting.comment
             lines.append(txt.rstrip())
+            if posting.comment and posting.comment not in (self.narration, self.comment):
+                comment = posting.comment.replace("\"", "'")
+                lines.append(f"    comment:\"{comment}\"")
         return lines
 
     def _bean_str_transaction_header(self):
@@ -102,7 +105,9 @@ class Transaction:
             and self.comment != self.narration
             and self.comment != self.payee
         ):
-            txt += f" ; {self.comment}"
+            comment = self.comment.replace("\"", "'")
+            txt += f" ; {comment}"
+            txt += f"\n  comment: \"{comment}\""
         return txt
 
     def _update_status(self, md_status):
