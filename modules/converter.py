@@ -161,12 +161,13 @@ class Md2BeanConverter:
 
     def bean_account(self, md_transaction):
         md_account = md_transaction.account
+        account_id = md_account.name
 
-        if md_account.name not in self.accounts:
-            self.accounts[md_account.name] = Account(
+        if account_id not in self.accounts:
+            self.accounts[account_id] = Account(
                 md_account, md_account.name
             )
-        return self.accounts[md_account.name]
+        return self.accounts[account_id]
 
     def convert(self, moneydance_transactions):
         self.accounts = {}
