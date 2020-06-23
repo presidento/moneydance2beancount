@@ -39,7 +39,7 @@ with open("common.bean", "w", encoding="utf-8") as common_bean:
     for account in sorted(bean_converter.accounts.values(), key=lambda a: a.name):
         txt = f"{account.start_date} open {account.name}"
         if account.type == "Assets":
-            txt += f"     {account.currency}"
+            txt = f"{txt:55} {account.currency}"
         common_bean.write(txt + "\n")
 
         if account.type == 'Assets' or account.type == 'Liabilities':
