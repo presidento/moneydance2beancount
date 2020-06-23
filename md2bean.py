@@ -40,8 +40,6 @@ with open("common.bean", "w", encoding="utf-8") as common_bean:
         txt = f"{account.start_date} open {account.name}"
         if account.type == "Assets":
             txt += f"     {account.currency}"
-            if account.currency != DEFAULT_CURRENCY:
-                txt += ' "NONE"'
         common_bean.write(txt + "\n")
 
         if account.type == 'Assets' or account.type == 'Liabilities':
