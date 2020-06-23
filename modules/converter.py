@@ -76,10 +76,10 @@ class Transaction:
             if is_simple_transaction and split.amount < 0:
                 pass  # skip repeating the same amount
             else:
-                txt += f"{split.amount:10.2f}"
+                txt += f"{split.amount:10,.2f}"
                 txt += f" {split.account.currency}"
             if split.in_default_currency:
-                txt += f" @@ {abs(split.in_default_currency):.2f} {DEFAULT_CURRENCY}"
+                txt += f" @@ {abs(split.in_default_currency):,.2f} {DEFAULT_CURRENCY}"
             if split.comment and split.comment not in (self.narration, self.comment):
                 txt += f" ; " + split.comment
             lines.append(txt.rstrip())
