@@ -22,7 +22,9 @@ logger.info("Writing Beancount file")
 
 main_bean = open("main.bean", "w", encoding="utf-8")
 
-main_bean.write(textwrap.dedent(f"""
+main_bean.write(
+    textwrap.dedent(
+        f"""
     option "title" "Moneydance export"
     option "operating_currency" "{DEFAULT_CURRENCY}"
     option "render_commas" "TRUE"
@@ -33,7 +35,10 @@ main_bean.write(textwrap.dedent(f"""
 
     2005-01-01 custom "fava-option" "locale" "hu_HU"
     2005-01-01 custom "fava-option" "show-accounts-with-zero-balance" "false"
-""").strip() + "\n\n")
+"""
+    ).strip()
+    + "\n\n"
+)
 
 with open("common.bean", "w", encoding="utf-8") as common_bean:
     for account in sorted(bean_converter.accounts.values(), key=lambda a: a.name):
@@ -42,7 +47,7 @@ with open("common.bean", "w", encoding="utf-8") as common_bean:
             txt = f"{txt:55} {account.currency}"
         common_bean.write(txt + "\n")
 
-        if account.type == 'Assets' or account.type == 'Liabilities':
+        if account.type == "Assets" or account.type == "Liabilities":
             if account.end_date < datetime.date.today() - datetime.timedelta(days=365):
                 common_bean.write(f"{account.end_date} close {account.name}\n")
 
