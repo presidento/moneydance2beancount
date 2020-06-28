@@ -5,5 +5,4 @@ __pycache__/
 .vscode
 
 /Personal Finances.txt
-
-*.bean
+/output

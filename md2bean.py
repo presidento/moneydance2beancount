@@ -6,21 +6,31 @@ from dataclasses import dataclass
 import datetime
 import collections
 import textwrap
+import pathlib
 
 DEFAULT_CURRENCY = "HUF"
 
-logger = scripthelper.bootstrap()
+scripthelper.add_argument(
+    "-i",
+    "--input-file",
+    help="Moneydance txt export filename. Default: Personal finances.txt",
+    default="Personal Finances.txt",
+)
+scripthelper.add_argument("-o", "--output-dir", default="output")
+logger, args = scripthelper.bootstrap_args()
 
+out_dir = pathlib.Path(args.output_dir)
+out_dir.mkdir(exist_ok=True)
 
 logger.info("Parsing Moneydance input")
-parser = MoneydanceParser("Personal Finances.txt")
+parser = MoneydanceParser(args.input_file)
 parser.parse()
 bean_converter = Md2BeanConverter()
 bean_converter.convert(parser.all_transactions())
 
 logger.info("Writing Beancount file")
 
-main_bean = open("main.bean", "w", encoding="utf-8")
+main_bean = (out_dir / "main.bean").open("w", encoding="utf-8")
 
 main_bean.write(
     textwrap.dedent(
@@ -40,7 +50,7 @@ main_bean.write(
     + "\n\n"
 )
 
-with open("common.bean", "w", encoding="utf-8") as common_bean:
+with (out_dir / "common.bean").open("w", encoding="utf-8") as common_bean:
     for account in sorted(bean_converter.accounts.values(), key=lambda a: a.name):
         txt = f"{account.start_date} open {account.name}"
         if account.type == "Assets":
@@ -62,7 +72,9 @@ for transaction in sorted(bean_converter.transactions, key=lambda p: p.date):
         current_year = transaction.date.year
         if current_out_file:
             current_out_file.close()
-        current_out_file = open(f'{current_year}.bean', 'w', encoding='utf-8')
+        current_out_file = (out_dir / f"{current_year}.bean").open(
+            "w", encoding="utf-8"
+        )
         main_bean.write(f'include "{current_year}.bean"\n')
 
     if not any(posting.amount for posting in transaction.postings):
