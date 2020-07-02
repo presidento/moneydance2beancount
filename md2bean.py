@@ -9,6 +9,7 @@ import textwrap
 import pathlib
 
 DEFAULT_CURRENCY = "HUF"
+VERY_FIRST_DATE = "2005-01-01"
 
 scripthelper.add_argument(
     "-i",
@@ -38,28 +39,44 @@ main_bean.write(
     option "title" "Moneydance export"
     option "operating_currency" "{DEFAULT_CURRENCY}"
     option "render_commas" "TRUE"
+    option "account_previous_balances" "Opening-Balances"
 
     plugin "beancount.plugins.implicit_prices"
     ;plugin "beancount.plugins.leafonly"
     ;plugin "beancount.plugins.mark_unverified"
 
-    2005-01-01 custom "fava-option" "locale" "hu_HU"
-    2005-01-01 custom "fava-option" "show-accounts-with-zero-balance" "false"
+    {VERY_FIRST_DATE} custom "fava-option" "locale" "hu_HU"
+    {VERY_FIRST_DATE} custom "fava-option" "show-accounts-with-zero-balance" "false"
 """
     ).strip()
     + "\n\n"
 )
 
 with (out_dir / "common.bean").open("w", encoding="utf-8") as common_bean:
+    had_opening_balance = False
     for account in sorted(bean_converter.accounts.values(), key=lambda a: a.name):
         txt = f"{account.start_date} open {account.name}"
         if account.type == "Assets":
             txt = f"{txt:55} {account.currency}"
         common_bean.write(txt + "\n")
+        if account.start_balance:
+            had_opening_balance = True
+            common_bean.write(
+                textwrap.dedent(
+                    f"""
+                    {account.start_date} * "Opening balance"
+                      {account.name} {account.start_balance} {account.currency}
+                      Equity:Opening-Balances
+                    """
+                ).strip()
+                + "\n"
+            )
 
         if account.type == "Assets" or account.type == "Liabilities":
             if account.end_date < datetime.date.today() - datetime.timedelta(days=365):
                 common_bean.write(f"{account.end_date} close {account.name}\n")
+    if had_opening_balance:
+        common_bean.write(f"{VERY_FIRST_DATE} open Equity:Opening-Balances\n")
 
 main_bean.write('include "common.bean"\n')
 
