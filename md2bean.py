@@ -54,8 +54,13 @@ main_bean.write(
 
 with (out_dir / "common.bean").open("w", encoding="utf-8") as common_bean:
     had_opening_balance = False
+    last_account_type = None
+    common_bean.write(f"; Accounts generated from Moneydance export on {datetime.date.today()}\n")
     for account in sorted(bean_converter.accounts.values(), key=lambda a: a.name):
-        txt = f"{account.start_date} open {account.name}"
+        if account.type != last_account_type:
+            common_bean.write("\n")
+            last_account_type = account.type
+        txt = f"{account.start_date} open  {account.name}"
         if account.type == "Assets":
             txt = f"{txt:55} {account.currency}"
         common_bean.write(txt + "\n")
@@ -76,7 +81,7 @@ with (out_dir / "common.bean").open("w", encoding="utf-8") as common_bean:
             if account.end_date < datetime.date.today() - datetime.timedelta(days=365):
                 common_bean.write(f"{account.end_date} close {account.name}\n")
     if had_opening_balance:
-        common_bean.write(f"{VERY_FIRST_DATE} open Equity:Opening-Balances\n")
+        common_bean.write(f"{VERY_FIRST_DATE} open  Equity:Opening-Balances\n")
 
 main_bean.write('include "common.bean"\n')
 
