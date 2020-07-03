@@ -55,7 +55,9 @@ main_bean.write(
 with (out_dir / "common.bean").open("w", encoding="utf-8") as common_bean:
     had_opening_balance = False
     last_account_type = None
-    common_bean.write(f"; Accounts generated from Moneydance export on {datetime.date.today()}\n")
+    common_bean.write(
+        "; Accounts generated from Moneydance export on {datetime.date.today()}\n"
+    )
     for account in sorted(bean_converter.accounts.values(), key=lambda a: a.name):
         if account.type != last_account_type:
             common_bean.write("\n")
@@ -89,7 +91,9 @@ main_bean.write('include "fixup.bean"\n')
 
 current_year = 0
 current_out_file = None
-for transaction in sorted(bean_converter.transactions, key=lambda p: p.date):
+for transaction in sorted(
+    bean_converter.transactions, key=lambda t: f"{t.date} {t.narration} {t.comment}"
+):
     if transaction.date.year != current_year:
         current_year = transaction.date.year
         if current_out_file:
