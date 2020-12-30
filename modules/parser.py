@@ -64,7 +64,7 @@ class MoneydanceParser:
         self._current_account = None
         self._current_transaction = None
 
-        with open(self.filename, newline="") as input_file:
+        with open(self.filename, encoding="cp1250", newline="") as input_file:
             reader = csv.reader(input_file, delimiter="\t", quotechar="'")
             for row in reader:
                 self.parse_row(row)
