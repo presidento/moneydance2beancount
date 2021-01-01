@@ -56,7 +56,7 @@ with (out_dir / "common.bean").open("w", encoding="utf-8") as common_bean:
     had_opening_balance = False
     last_account_type = None
     common_bean.write(
-        "; Accounts generated from Moneydance export on {datetime.date.today()}\n"
+        f"; Accounts generated from Moneydance export on {datetime.date.today()}\n"
     )
     for account in sorted(bean_converter.accounts.values(), key=lambda a: a.name):
         if account.type != last_account_type:
