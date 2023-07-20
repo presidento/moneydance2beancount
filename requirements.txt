@@ -34,7 +34,7 @@ pip-tools==5.4.0
     # via -r requirements.in
 prettyprinter==0.18.0
     # via scripthelper
-pygments==2.7.4
+pygments==2.15.0
     # via prettyprinter
 pylint==2.6.0
     # via -r requirements.in
